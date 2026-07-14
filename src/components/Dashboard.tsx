@@ -7,6 +7,7 @@ interface Props {
   error: string | null;
   onOpen: (name: string, isQuery: boolean) => void;
   onReload: () => void;
+  onBackup: () => void;
 }
 
 function StatTile({
@@ -70,7 +71,7 @@ function BarList({
   );
 }
 
-export function Dashboard({ stats, loading, error, onOpen, onReload }: Props) {
+export function Dashboard({ stats, loading, error, onOpen, onReload, onBackup }: Props) {
   if (loading && !stats) {
     return (
       <div className="flex-1 flex items-center justify-center text-slate-400 text-sm">
@@ -105,13 +106,22 @@ export function Dashboard({ stats, loading, error, onOpen, onReload }: Props) {
             {stats.db_path}
           </div>
         </div>
-        <button
-          onClick={onReload}
-          disabled={loading}
-          className="shrink-0 border border-slate-300 rounded-lg px-3 py-1.5 text-sm hover:bg-slate-50 disabled:opacity-50"
-        >
-          ⟳ Aktualisieren
-        </button>
+        <div className="flex gap-2 shrink-0">
+          <button
+            onClick={onBackup}
+            className="border border-slate-300 rounded-lg px-3 py-1.5 text-sm hover:bg-slate-50"
+            title="Kopie der Datenbankdatei mit Zeitstempel speichern"
+          >
+            💾 Backup
+          </button>
+          <button
+            onClick={onReload}
+            disabled={loading}
+            className="border border-slate-300 rounded-lg px-3 py-1.5 text-sm hover:bg-slate-50 disabled:opacity-50"
+          >
+            ⟳ Aktualisieren
+          </button>
+        </div>
       </div>
 
       {/* KPI tiles */}

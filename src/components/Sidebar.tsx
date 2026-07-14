@@ -6,6 +6,7 @@ interface Props {
   onSelect: (name: string, isQuery: boolean) => void;
   onOpenOther: () => void;
   onHome: () => void;
+  onBackup: () => void;
 }
 
 export function Sidebar({
@@ -16,6 +17,7 @@ export function Sidebar({
   onSelect,
   onOpenOther,
   onHome,
+  onBackup,
 }: Props) {
   const fileName = dbPath.split(/[\\/]/).pop() ?? dbPath;
 
@@ -63,6 +65,13 @@ export function Sidebar({
             Andere DB…
           </button>
         </div>
+        <button
+          onClick={onBackup}
+          className="mt-1.5 w-full text-xs border border-slate-300 rounded-lg px-2 py-1.5 hover:bg-slate-100"
+          title="Kopie der Datenbankdatei mit Zeitstempel speichern"
+        >
+          💾 Backup erstellen
+        </button>
       </div>
       <div className="flex-1 overflow-y-auto p-2 space-y-4">
         <div>

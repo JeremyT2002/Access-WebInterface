@@ -359,6 +359,32 @@ function AppInner() {
     }
   };
 
+  // ---- Backup ---------------------------------------------------------------
+  const doBackup = async () => {
+    if (!dbPath) return;
+    const stem = (dbPath.split(/[\\/]/).pop() ?? "database").replace(/\.[^.]+$/, "");
+    const ext = dbPath.match(/\.([^.]+)$/)?.[1] ?? "accdb";
+    const now = new Date();
+    const p = (n: number) => String(n).padStart(2, "0");
+    const ts = `${now.getFullYear()}${p(now.getMonth() + 1)}${p(now.getDate())}_${p(
+      now.getHours(),
+    )}${p(now.getMinutes())}${p(now.getSeconds())}`;
+    const dest = await saveDialog({
+      defaultPath: `${stem}_backup_${ts}.${ext}`,
+      filters: [{ name: "Access Database", extensions: [ext] }],
+    });
+    if (!dest) return;
+    setBusy(true);
+    try {
+      const made = await api.backupDatabase(dest);
+      push("success", `Backup erstellt: ${made.split(/[\\/]/).pop()}`);
+    } catch (e) {
+      push("error", toAppError(e).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
   // ---- Export ---------------------------------------------------------------
   const exportCsv = async () => {
     if (!selected) return;
@@ -430,6 +456,7 @@ function AppInner() {
           onSelect={selectSource}
           onOpenOther={pickAndOpen}
           onHome={goHome}
+          onBackup={doBackup}
         />
         <main className="flex-1 min-w-0 flex flex-col p-4">
           {!selected && (
@@ -439,6 +466,7 @@ function AppInner() {
               error={dashError}
               onOpen={selectSource}
               onReload={loadDashboard}
+              onBackup={doBackup}
             />
           )}
           {selected && (
