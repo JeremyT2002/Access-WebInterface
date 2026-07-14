@@ -1,0 +1,61 @@
+name: QA
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+# Cancel superseded runs on the same ref.
+concurrency:
+  group: qa-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  qa:
+    name: Build & lint (Windows)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # --- Frontend -------------------------------------------------------
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      # `tsc && vite build` — gates TypeScript types and produces ../dist,
+      # which the Rust build embeds via tauri::generate_context!.
+      - name: Type-check & build frontend
+        run: npm run build
+
+      # --- Rust backend ---------------------------------------------------
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Rust cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - name: Check formatting
+        working-directory: src-tauri
+        run: cargo fmt --all -- --check
+
+      - name: Clippy (deny warnings)
+        working-directory: src-tauri
+        run: cargo clippy --all-targets -- -D warnings
+
+      # The integration test needs the Microsoft Access ODBC driver and a real
+      # .accdb, neither of which exist on the runner — so we compile it (to
+      # catch breakage) but do not execute it.
+      - name: Compile tests (no run)
+        working-directory: src-tauri
+        run: cargo test --no-run

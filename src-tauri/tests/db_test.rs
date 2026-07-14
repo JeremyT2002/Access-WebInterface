@@ -183,7 +183,10 @@ fn full_roundtrip() {
 
     let after = db::query_rows(&conn, &pi).expect("after update");
     let age_idx2 = after.columns.iter().position(|c| c == "Age").unwrap();
-    assert_eq!(after.rows[0][age_idx2].as_deref().map(str::trim), Some("100"));
+    assert_eq!(
+        after.rows[0][age_idx2].as_deref().map(str::trim),
+        Some("100")
+    );
 
     let deleted = db::delete_rows(&conn, "Customers", &[pk]).expect("delete");
     assert_eq!(deleted, 1);
@@ -250,7 +253,8 @@ fn full_roundtrip() {
         op: "boolean".into(),
         value: Some("true".into()),
     }];
-    let age_stats = db::column_stats(&conn, &pcs, "Age", ColumnCategory::Integer).expect("age stats");
+    let age_stats =
+        db::column_stats(&conn, &pcs, "Age", ColumnCategory::Integer).expect("age stats");
     println!("age stats (active only): {age_stats:#?}");
     assert_eq!(age_stats.total, 60);
     assert_eq!(age_stats.nulls, 0);
@@ -259,8 +263,8 @@ fn full_roundtrip() {
     assert!(!age_stats.top_values.is_empty());
 
     // distinct + nulls on the full table
-    let name_stats =
-        db::column_stats(&conn, &params("Customers"), "Age", ColumnCategory::Integer).expect("stats");
+    let name_stats = db::column_stats(&conn, &params("Customers"), "Age", ColumnCategory::Integer)
+        .expect("stats");
     assert_eq!(name_stats.nulls, 1, "one NULL age in the full table");
 
     // --- backup ---

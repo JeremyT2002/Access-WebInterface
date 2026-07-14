@@ -213,10 +213,7 @@ pub fn get_dashboard_stats(state: State<'_, AppState>) -> AppResult<DashboardSta
 }
 
 #[tauri::command]
-pub fn backup_database(
-    state: State<'_, AppState>,
-    dest_path: Option<String>,
-) -> AppResult<String> {
+pub fn backup_database(state: State<'_, AppState>, dest_path: Option<String>) -> AppResult<String> {
     let path = current_path(&state)?;
     db::backup_database(&path, dest_path.as_deref())
 }

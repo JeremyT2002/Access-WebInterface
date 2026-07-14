@@ -1,5 +1,7 @@
 # Access DB Browser
 
+[![QA](https://github.com/JeremyT2002/Access-WebInterface/actions/workflows/ci.yml/badge.svg)](https://github.com/JeremyT2002/Access-WebInterface/actions/workflows/ci.yml)
+
 A Tauri v2 desktop app (Windows) to browse and manage Microsoft Access databases
 (`.accdb` / `.mdb`) via ODBC — without needing Microsoft Access itself.
 

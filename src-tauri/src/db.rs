@@ -4,8 +4,7 @@ use encoding_rs::WINDOWS_1252;
 use odbc_api::{
     buffers::TextRowSet,
     parameter::{InputParameter, VarCharBox, WithDataType},
-    Connection, ConnectionOptions, Cursor, DataType, Environment, IntoParameter,
-    ResultSetMetadata,
+    Connection, ConnectionOptions, Cursor, DataType, Environment, IntoParameter, ResultSetMetadata,
 };
 use std::collections::HashMap;
 use std::sync::OnceLock;
@@ -211,7 +210,10 @@ fn primary_key_columns(conn: &Connection<'_>, table: &str) -> Vec<String> {
             let Some(column) = getdata_string(hstmt, 9) else {
                 continue;
             };
-            indexes.entry(index_name).or_default().push((ordinal, column));
+            indexes
+                .entry(index_name)
+                .or_default()
+                .push((ordinal, column));
         }
     }
     drop(stmt);
@@ -220,11 +222,7 @@ fn primary_key_columns(conn: &Connection<'_>, table: &str) -> Vec<String> {
     // fall back to the smallest unique index (still identifies rows uniquely).
     let chosen = indexes
         .remove("PrimaryKey")
-        .or_else(|| {
-            indexes
-                .into_values()
-                .min_by_key(|cols| cols.len())
-        });
+        .or_else(|| indexes.into_values().min_by_key(|cols| cols.len()));
     match chosen {
         Some(mut cols) => {
             cols.sort_by_key(|(ord, _)| *ord);
@@ -255,7 +253,10 @@ pub fn get_table_schema(
         };
         let sql_type = row.data_type as i32;
         let type_name = row.type_name.as_bytes().map(decode).unwrap_or_default();
-        let size: Option<u32> = row.column_size.into_opt().and_then(|s| u32::try_from(s).ok());
+        let size: Option<u32> = row
+            .column_size
+            .into_opt()
+            .and_then(|s| u32::try_from(s).ok());
         // SQL_NO_NULLS == 0; SQL_NULLABLE(1)/SQL_NULLABLE_UNKNOWN(2) => nullable.
         let nullable = row.nullable != 0;
         let is_autonumber = type_name.eq_ignore_ascii_case("COUNTER");
@@ -314,7 +315,9 @@ fn timestamp_param(value: &str) -> AppResult<BoxedParam> {
         return Err(AppError::other(format!("Invalid date value: {value}")));
     }
     let year: i16 = dp[0].parse().map_err(|_| AppError::other("Invalid year"))?;
-    let month: u16 = dp[1].parse().map_err(|_| AppError::other("Invalid month"))?;
+    let month: u16 = dp[1]
+        .parse()
+        .map_err(|_| AppError::other("Invalid month"))?;
     let day: u16 = dp[2].parse().map_err(|_| AppError::other("Invalid day"))?;
     let mut hour: u16 = 0;
     let mut minute: u16 = 0;
@@ -698,9 +701,9 @@ fn pk_where(
     let cats = category_map(schema);
     let mut clauses = Vec::new();
     for pk_col in &schema.primary_key {
-        let v = pk_values.get(pk_col).ok_or_else(|| {
-            AppError::other(format!("Missing primary key value for '{pk_col}'"))
-        })?;
+        let v = pk_values
+            .get(pk_col)
+            .ok_or_else(|| AppError::other(format!("Missing primary key value for '{pk_col}'")))?;
         clauses.push(format!("{} = ?", bracket(pk_col)?));
         params.push(typed_param(*cats.get(pk_col).unwrap(), v.as_deref())?);
     }
@@ -798,7 +801,11 @@ pub fn read_lock_holders(db_path: &str) -> Vec<LockHolder> {
             continue;
         }
         let holder = LockHolder {
-            machine: if machine.is_empty() { "?".into() } else { machine },
+            machine: if machine.is_empty() {
+                "?".into()
+            } else {
+                machine
+            },
             user: if user.is_empty() { "?".into() } else { user },
         };
         if !holders
@@ -894,7 +901,10 @@ fn try_count(conn: &Connection<'_>, source: &str) -> Option<i64> {
     if batch.num_rows() == 0 {
         return None;
     }
-    batch.at(0, 0).map(decode).and_then(|s| s.trim().parse().ok())
+    batch
+        .at(0, 0)
+        .map(decode)
+        .and_then(|s| s.trim().parse().ok())
 }
 
 pub fn dashboard_stats(conn: &Connection<'_>, db_path: &str) -> AppResult<DashboardStats> {
@@ -977,8 +987,14 @@ pub fn column_stats(
         let mut rsc = cursor.bind_buffer(&mut buffers)?;
         match rsc.fetch()? {
             Some(b) if b.num_rows() > 0 => (
-                b.at(0, 0).map(decode).and_then(|s| s.trim().parse().ok()).unwrap_or(0),
-                b.at(1, 0).map(decode).and_then(|s| s.trim().parse().ok()).unwrap_or(0),
+                b.at(0, 0)
+                    .map(decode)
+                    .and_then(|s| s.trim().parse().ok())
+                    .unwrap_or(0),
+                b.at(1, 0)
+                    .map(decode)
+                    .and_then(|s| s.trim().parse().ok())
+                    .unwrap_or(0),
             ),
             _ => (0i64, 0i64),
         }
@@ -996,9 +1012,11 @@ pub fn column_stats(
         let mut buffers = TextRowSet::for_cursor(1, &mut cursor, Some(64))?;
         let mut rsc = cursor.bind_buffer(&mut buffers)?;
         match rsc.fetch()? {
-            Some(b) if b.num_rows() > 0 => {
-                b.at(0, 0).map(decode).and_then(|s| s.trim().parse().ok()).unwrap_or(0)
-            }
+            Some(b) if b.num_rows() > 0 => b
+                .at(0, 0)
+                .map(decode)
+                .and_then(|s| s.trim().parse().ok())
+                .unwrap_or(0),
             _ => 0i64,
         }
     };
@@ -1024,7 +1042,9 @@ pub fn column_stats(
                 let mn = b.at(0, 0).map(decode);
                 let mx = b.at(1, 0).map(decode);
                 let av = if numeric {
-                    b.at(2, 0).map(decode).and_then(|s| s.trim().replace(',', ".").parse().ok())
+                    b.at(2, 0)
+                        .map(decode)
+                        .and_then(|s| s.trim().replace(',', ".").parse().ok())
                 } else {
                     None
                 };
@@ -1050,7 +1070,11 @@ pub fn column_stats(
             for r in 0..b.num_rows() {
                 top_values.push(TopValue {
                     value: b.at(0, r).map(decode),
-                    count: b.at(1, r).map(decode).and_then(|s| s.trim().parse().ok()).unwrap_or(0),
+                    count: b
+                        .at(1, r)
+                        .map(decode)
+                        .and_then(|s| s.trim().parse().ok())
+                        .unwrap_or(0),
                 });
             }
         }
@@ -1077,9 +1101,7 @@ pub fn column_stats(
 fn format_system_time(t: std::time::SystemTime) -> String {
     // Seconds since epoch -> naive local-ish date string via the OS offset is
     // overkill; we format in UTC and label it. Good enough for a "last change".
-    let dur = t
-        .duration_since(std::time::UNIX_EPOCH)
-        .unwrap_or_default();
+    let dur = t.duration_since(std::time::UNIX_EPOCH).unwrap_or_default();
     let (y, mo, d, h, mi, s) = civil_from_unix(dur.as_secs() as i64);
     format!("{y:04}-{mo:02}-{d:02} {h:02}:{mi:02}:{s:02} UTC")
 }
