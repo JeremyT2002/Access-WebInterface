@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { open as openDialog, save as saveDialog } from "@tauri-apps/plugin-dialog";
 import { api, type RowValues } from "./api";
 import type {
+  DashboardStats,
   Filter,
   LockStatus,
   QueryParams,
@@ -10,6 +11,7 @@ import type {
   TableSchema,
 } from "./types";
 import { toAppError } from "./types";
+import { Dashboard } from "./components/Dashboard";
 import { Sidebar } from "./components/Sidebar";
 import { DataGrid } from "./components/DataGrid";
 import { FilterBar } from "./components/FilterBar";
@@ -49,6 +51,11 @@ function AppInner() {
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(false);
   const [busy, setBusy] = useState(false);
+
+  // Dashboard (cockpit home)
+  const [dashStats, setDashStats] = useState<DashboardStats | null>(null);
+  const [dashLoading, setDashLoading] = useState(false);
+  const [dashError, setDashError] = useState<string | null>(null);
 
   // Selection / dialogs
   const [selectedRows, setSelectedRows] = useState<Set<number>>(new Set());
@@ -144,6 +151,32 @@ function AppInner() {
       setBusy(false);
     }
   }, [dbPath, push]);
+
+  // ---- Dashboard ---------------------------------------------------------
+  const loadDashboard = useCallback(async () => {
+    setDashLoading(true);
+    setDashError(null);
+    try {
+      const s = await api.getDashboardStats();
+      setDashStats(s);
+    } catch (e) {
+      setDashError(toAppError(e).message);
+    } finally {
+      setDashLoading(false);
+    }
+  }, []);
+
+  // Load / refresh the dashboard whenever we are on the home view.
+  useEffect(() => {
+    if (dbPath && !selected) loadDashboard();
+  }, [dbPath, selected, loadDashboard]);
+
+  const goHome = useCallback(() => {
+    setSelected(null);
+    setSchema(null);
+    setPageData(null);
+    setViewError(null);
+  }, []);
 
   // ---- Selecting a table / query ----------------------------------------
   const selectSource = useCallback(async (name: string, isQuery: boolean) => {
@@ -396,12 +429,17 @@ function AppInner() {
           selected={selected}
           onSelect={selectSource}
           onOpenOther={pickAndOpen}
+          onHome={goHome}
         />
         <main className="flex-1 min-w-0 flex flex-col p-4">
           {!selected && (
-            <div className="flex-1 flex items-center justify-center text-slate-400 text-sm">
-              Select a table or query from the sidebar to browse its data.
-            </div>
+            <Dashboard
+              stats={dashStats}
+              loading={dashLoading}
+              error={dashError}
+              onOpen={selectSource}
+              onReload={loadDashboard}
+            />
           )}
           {selected && (
             <>

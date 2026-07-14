@@ -5,9 +5,18 @@ interface Props {
   selected: { name: string; isQuery: boolean } | null;
   onSelect: (name: string, isQuery: boolean) => void;
   onOpenOther: () => void;
+  onHome: () => void;
 }
 
-export function Sidebar({ dbPath, tables, queries, selected, onSelect, onOpenOther }: Props) {
+export function Sidebar({
+  dbPath,
+  tables,
+  queries,
+  selected,
+  onSelect,
+  onOpenOther,
+  onHome,
+}: Props) {
   const fileName = dbPath.split(/[\\/]/).pop() ?? dbPath;
 
   const item = (name: string, isQuery: boolean) => {
@@ -36,12 +45,24 @@ export function Sidebar({ dbPath, tables, queries, selected, onSelect, onOpenOth
         <div className="text-sm font-medium truncate mt-0.5" title={dbPath}>
           {fileName}
         </div>
-        <button
-          onClick={onOpenOther}
-          className="mt-2 w-full text-xs border border-slate-300 rounded-lg px-2 py-1.5 hover:bg-slate-100"
-        >
-          Open another database…
-        </button>
+        <div className="flex gap-1.5 mt-2">
+          <button
+            onClick={onHome}
+            className={`flex-1 text-xs border rounded-lg px-2 py-1.5 ${
+              selected === null
+                ? "border-blue-500 bg-blue-50 text-blue-700 font-medium"
+                : "border-slate-300 hover:bg-slate-100"
+            }`}
+          >
+            🏠 Übersicht
+          </button>
+          <button
+            onClick={onOpenOther}
+            className="flex-1 text-xs border border-slate-300 rounded-lg px-2 py-1.5 hover:bg-slate-100"
+          >
+            Andere DB…
+          </button>
+        </div>
       </div>
       <div className="flex-1 overflow-y-auto p-2 space-y-4">
         <div>
