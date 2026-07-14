@@ -17,6 +17,7 @@ import { DataGrid } from "./components/DataGrid";
 import { FilterBar } from "./components/FilterBar";
 import { RowForm } from "./components/RowForm";
 import { DetailPanel } from "./components/DetailPanel";
+import { StatsPanel } from "./components/StatsPanel";
 import { LockBanner } from "./components/LockBanner";
 import { ConfirmDialog } from "./components/ConfirmDialog";
 import { ToastProvider, useToasts } from "./components/Toasts";
@@ -64,6 +65,7 @@ function AppInner() {
   const [editingRowIdx, setEditingRowIdx] = useState<number | null>(null);
   const [detailIdx, setDetailIdx] = useState<number | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<number[] | null>(null);
+  const [statsColumn, setStatsColumn] = useState<string | null>(null);
 
   const requestSeq = useRef(0);
 
@@ -533,6 +535,7 @@ function AppInner() {
                   onDeleteRow={(i) => setConfirmDelete([i])}
                   onShowDetail={(i) => setDetailIdx(i)}
                   onCellSave={saveCell}
+                  onColumnStats={(c) => setStatsColumn(c)}
                 />
               )}
               {!schema && !viewError && (
@@ -561,6 +564,23 @@ function AppInner() {
           />
         )}
       </div>
+
+      {statsColumn && schema && selected && (
+        <StatsPanel
+          params={buildParams() ?? {
+            source: selected.name,
+            filters,
+            global_search: debouncedSearch || null,
+            search_columns: debouncedSearch ? schema.columns.map((c) => c.name) : [],
+            sort,
+            page: 0,
+            page_size: PAGE_SIZE,
+          }}
+          column={statsColumn}
+          category={schema.columns.find((c) => c.name === statsColumn)?.category ?? "text"}
+          onClose={() => setStatsColumn(null)}
+        />
+      )}
 
       {formOpen && schema && (
         <RowForm

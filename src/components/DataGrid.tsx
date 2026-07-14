@@ -15,6 +15,7 @@ interface Props {
   onDeleteRow: (index: number) => void;
   onShowDetail: (index: number) => void;
   onCellSave: (rowIndex: number, column: string, value: string | null) => void;
+  onColumnStats: (column: string) => void;
 }
 
 function cellDisplay(v: Cell, col: Column | undefined): string {
@@ -39,6 +40,7 @@ export function DataGrid({
   onDeleteRow,
   onShowDetail,
   onCellSave,
+  onColumnStats,
 }: Props) {
   const colByName = new Map(schema.columns.map((c) => [c.name, c]));
   const writable = !schema.read_only;
@@ -120,13 +122,27 @@ export function DataGrid({
                 return (
                   <th
                     key={c}
-                    onClick={() => toggleSort(c)}
-                    className="px-3 py-2 text-left font-semibold text-slate-600 cursor-pointer select-none hover:bg-slate-100 whitespace-nowrap"
+                    className="px-3 py-2 text-left font-semibold text-slate-600 select-none hover:bg-slate-100 whitespace-nowrap group/th"
                     title={`${col?.type_name ?? ""}${col?.is_primary_key ? " (primary key)" : ""}`}
                   >
                     <span className="inline-flex items-center gap-1">
                       {col?.is_primary_key && <span className="text-amber-500">🔑</span>}
-                      {c} {sortIndicator(c)}
+                      <button
+                        onClick={() => toggleSort(c)}
+                        className="cursor-pointer hover:text-slate-900"
+                      >
+                        {c} {sortIndicator(c)}
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onColumnStats(c);
+                        }}
+                        className="opacity-0 group-hover/th:opacity-100 text-slate-400 hover:text-blue-600 transition-opacity"
+                        title={`Statistik für ${c}`}
+                      >
+                        📊
+                      </button>
                     </span>
                   </th>
                 );
