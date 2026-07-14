@@ -1,5 +1,8 @@
 import { invoke } from "@tauri-apps/api/core";
 import type {
+  ColumnCategory,
+  ColumnStats,
+  DashboardStats,
   LockStatus,
   OpenResult,
   QueryParams,
@@ -28,4 +31,9 @@ export const api = {
   exportCsv: (params: QueryParams, destPath: string) =>
     invoke<number>("export_csv", { params, destPath }),
   checkLockStatus: () => invoke<LockStatus>("check_lock_status"),
+  getDashboardStats: () => invoke<DashboardStats>("get_dashboard_stats"),
+  backupDatabase: (destPath?: string) =>
+    invoke<string>("backup_database", { destPath: destPath ?? null }),
+  getColumnStats: (params: QueryParams, column: string, category: ColumnCategory) =>
+    invoke<ColumnStats>("get_column_stats", { params, column, category }),
 };

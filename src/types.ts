@@ -58,11 +58,53 @@ export interface RowPage {
   page_size: number;
 }
 
+export interface LockHolder {
+  machine: string;
+  user: string;
+}
+
 export interface LockStatus {
   laccdb_present: boolean;
   connect_ok: boolean;
   locked: boolean;
   message: string | null;
+  holders: LockHolder[];
+}
+
+export interface TableStat {
+  name: string;
+  is_query: boolean;
+  row_count: number | null;
+}
+
+export interface DashboardStats {
+  db_path: string;
+  file_name: string;
+  file_size_bytes: number;
+  file_modified: string | null;
+  table_count: number;
+  query_count: number;
+  total_rows: number;
+  tables: TableStat[];
+  queries: TableStat[];
+}
+
+export interface TopValue {
+  value: string | null;
+  count: number;
+}
+
+export interface ColumnStats {
+  column: string;
+  category: ColumnCategory;
+  total: number;
+  non_null: number;
+  nulls: number;
+  distinct: number;
+  min: string | null;
+  max: string | null;
+  avg: number | null;
+  top_values: TopValue[];
 }
 
 export interface OpenResult {
