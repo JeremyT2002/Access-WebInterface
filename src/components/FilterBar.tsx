@@ -108,7 +108,7 @@ export function FilterBar({
     if (newOp === "boolean" || col.category === "boolean") {
       return (
         <select
-          className="border border-slate-300 rounded-lg px-2 py-1.5 text-sm"
+          className="border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm"
           value={newValue || "true"}
           onChange={(e) => setNewValue(e.target.value)}
         >
@@ -127,7 +127,7 @@ export function FilterBar({
       <input
         type={type}
         step={col.category === "float" ? "any" : undefined}
-        className="border border-slate-300 rounded-lg px-2 py-1.5 text-sm w-44"
+        className="border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm w-44"
         placeholder="Value…"
         value={newValue}
         onChange={(e) => setNewValue(e.target.value)}
@@ -161,11 +161,11 @@ export function FilterBar({
           value={globalSearch}
           onChange={(e) => onGlobalSearchChange(e.target.value)}
           placeholder="Search all columns…"
-          className="border border-slate-300 rounded-lg px-3 py-1.5 text-sm w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-1.5 text-sm w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <button
           onClick={startAdd}
-          className="border border-slate-300 hover:bg-slate-50 text-sm rounded-lg px-3 py-1.5"
+          className="border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700/60 text-sm rounded-lg px-3 py-1.5"
         >
           + Filter
         </button>
@@ -173,7 +173,7 @@ export function FilterBar({
         <button
           onClick={onRefresh}
           disabled={busy}
-          className="border border-slate-300 hover:bg-slate-50 text-sm rounded-lg px-3 py-1.5 disabled:opacity-50"
+          className="border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700/60 text-sm rounded-lg px-3 py-1.5 disabled:opacity-50"
           title="Reload data"
         >
           ⟳ Refresh
@@ -181,7 +181,7 @@ export function FilterBar({
         <button
           onClick={onExportCsv}
           disabled={busy}
-          className="border border-slate-300 hover:bg-slate-50 text-sm rounded-lg px-3 py-1.5 disabled:opacity-50"
+          className="border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700/60 text-sm rounded-lg px-3 py-1.5 disabled:opacity-50"
         >
           ⬇ Export CSV
         </button>
@@ -189,7 +189,7 @@ export function FilterBar({
 
       {/* Read-only hint */}
       {schema.read_only && (
-        <div className="text-xs bg-slate-100 border border-slate-200 rounded-lg px-3 py-2 text-slate-500">
+        <div className="text-xs bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-500 dark:text-slate-400">
           {schema.primary_key.length === 0 && !schema.name.startsWith("(")
             ? "This view is read-only. " : ""}
           {schema.columns.length > 0 && schema.primary_key.length === 0
@@ -200,9 +200,9 @@ export function FilterBar({
 
       {/* Add-filter row */}
       {adding && (
-        <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2">
+        <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2">
           <select
-            className="border border-slate-300 rounded-lg px-2 py-1.5 text-sm"
+            className="border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm"
             value={newCol}
             onChange={(e) => {
               const c = schema.columns.find((x) => x.name === e.target.value);
@@ -218,7 +218,7 @@ export function FilterBar({
             ))}
           </select>
           <select
-            className="border border-slate-300 rounded-lg px-2 py-1.5 text-sm"
+            className="border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm"
             value={newOp}
             onChange={(e) => setNewOp(e.target.value as FilterOp)}
           >
@@ -237,7 +237,7 @@ export function FilterBar({
           </button>
           <button
             onClick={() => setAdding(false)}
-            className="text-sm text-slate-500 hover:text-slate-700 px-2"
+            className="text-sm text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 px-2"
           >
             Cancel
           </button>
@@ -250,7 +250,7 @@ export function FilterBar({
           {filters.map((f, i) => (
             <span
               key={i}
-              className="inline-flex items-center gap-1.5 bg-blue-100 text-blue-800 text-xs rounded-full px-3 py-1"
+              className="inline-flex items-center gap-1.5 bg-blue-100 dark:bg-blue-900/40 text-blue-800 text-xs rounded-full px-3 py-1"
             >
               <strong>{f.column}</strong> {opLabel(f)}{" "}
               {f.op !== "is_null" && f.op !== "not_null" && <em>{f.value}</em>}
@@ -264,7 +264,7 @@ export function FilterBar({
             </span>
           ))}
           <button
-            className="text-xs text-slate-500 hover:text-slate-700 underline"
+            className="text-xs text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 underline"
             onClick={() => onFiltersChange([])}
           >
             Clear all

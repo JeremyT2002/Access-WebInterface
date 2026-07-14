@@ -96,7 +96,7 @@ export function RowForm({ schema, initial, busy, onSubmit, onClose }: Props) {
     const err = errors[c.name];
     const common =
       "w-full border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 " +
-      (err ? "border-rose-400" : "border-slate-300") +
+      (err ? "border-rose-400" : "border-slate-300 dark:border-slate-600") +
       (isNull ? " opacity-40" : "");
 
     let input: React.ReactNode;
@@ -145,16 +145,16 @@ export function RowForm({ schema, initial, busy, onSubmit, onClose }: Props) {
     return (
       <div key={c.name}>
         <div className="flex items-center justify-between mb-1">
-          <label className="text-sm font-medium text-slate-700">
+          <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
             {c.name}
             {!c.nullable && <span className="text-rose-500 ml-0.5">*</span>}
-            <span className="ml-2 text-xs text-slate-400">{c.type_name}</span>
+            <span className="ml-2 text-xs text-slate-400 dark:text-slate-500">{c.type_name}</span>
             {c.is_primary_key && (
               <span className="ml-1 text-xs text-amber-600 font-semibold">PK</span>
             )}
           </label>
           {c.nullable && (
-            <label className="text-xs text-slate-400 flex items-center gap-1 cursor-pointer">
+            <label className="text-xs text-slate-400 dark:text-slate-500 flex items-center gap-1 cursor-pointer">
               <input
                 type="checkbox"
                 checked={isNull}
@@ -173,18 +173,18 @@ export function RowForm({ schema, initial, busy, onSubmit, onClose }: Props) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClose}>
       <div
-        className="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[85vh] flex flex-col"
+        className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl w-full max-w-lg max-h-[85vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+        <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
           <h2 className="text-lg font-semibold">
             {isEdit ? `Edit row in ${schema.name}` : `New row in ${schema.name}`}
           </h2>
-          <button className="text-slate-400 hover:text-slate-600" onClick={onClose}>✕</button>
+          <button className="text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300" onClick={onClose}>✕</button>
         </div>
         <div className="px-6 py-4 overflow-y-auto space-y-4 flex-1">
           {schema.columns.some((c) => c.is_autonumber) && !isEdit && (
-            <div className="text-xs bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-500">
+            <div className="text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-500 dark:text-slate-400">
               AutoNumber column
               {schema.columns.filter((c) => c.is_autonumber).map((c) => ` "${c.name}"`)} will be
               assigned automatically by Access.
@@ -192,9 +192,9 @@ export function RowForm({ schema, initial, busy, onSubmit, onClose }: Props) {
           )}
           {editableCols.map(field)}
         </div>
-        <div className="px-6 py-4 border-t border-slate-200 flex justify-end gap-3">
+        <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-700 flex justify-end gap-3">
           <button
-            className="px-4 py-2 text-sm rounded-lg border border-slate-300 hover:bg-slate-50"
+            className="px-4 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700/60"
             onClick={onClose}
           >
             Cancel

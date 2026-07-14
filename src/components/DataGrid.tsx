@@ -103,14 +103,14 @@ export function DataGrid({
 
   return (
     <div className="flex flex-col flex-1 min-h-0">
-      <div className="flex-1 overflow-auto border border-slate-200 rounded-lg bg-white relative">
+      <div className="flex-1 overflow-auto border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 relative">
         {loading && (
-          <div className="absolute inset-0 bg-white/60 z-10 flex items-center justify-center text-sm text-slate-500">
+          <div className="absolute inset-0 bg-white/60 dark:bg-slate-900/60 z-10 flex items-center justify-center text-sm text-slate-500 dark:text-slate-400">
             Loading…
           </div>
         )}
         <table className="min-w-full text-sm border-collapse">
-          <thead className="sticky top-0 bg-slate-50 z-[5] shadow-[0_1px_0_#e2e8f0]">
+          <thead className="sticky top-0 bg-slate-50 dark:bg-slate-800 z-[5] border-b border-slate-200 dark:border-slate-700">
             <tr>
               {writable && (
                 <th className="px-2 py-2 w-8 text-center">
@@ -122,14 +122,14 @@ export function DataGrid({
                 return (
                   <th
                     key={c}
-                    className="px-3 py-2 text-left font-semibold text-slate-600 select-none hover:bg-slate-100 whitespace-nowrap group/th"
+                    className="px-3 py-2 text-left font-semibold text-slate-600 dark:text-slate-300 select-none hover:bg-slate-100 dark:hover:bg-slate-700 whitespace-nowrap group/th"
                     title={`${col?.type_name ?? ""}${col?.is_primary_key ? " (primary key)" : ""}`}
                   >
                     <span className="inline-flex items-center gap-1">
                       {col?.is_primary_key && <span className="text-amber-500">🔑</span>}
                       <button
                         onClick={() => toggleSort(c)}
-                        className="cursor-pointer hover:text-slate-900"
+                        className="cursor-pointer hover:text-slate-900 dark:hover:text-slate-100"
                       >
                         {c} {sortIndicator(c)}
                       </button>
@@ -138,7 +138,7 @@ export function DataGrid({
                           e.stopPropagation();
                           onColumnStats(c);
                         }}
-                        className="opacity-0 group-hover/th:opacity-100 text-slate-400 hover:text-blue-600 transition-opacity"
+                        className="opacity-0 group-hover/th:opacity-100 text-slate-400 dark:text-slate-500 hover:text-blue-600 transition-opacity"
                         title={`Statistik für ${c}`}
                       >
                         📊
@@ -154,8 +154,8 @@ export function DataGrid({
             {page.rows.map((row, ri) => (
               <tr
                 key={ri}
-                className={`border-t border-slate-100 hover:bg-blue-50/50 ${
-                  selectedRows.has(ri) ? "bg-blue-50" : ""
+                className={`border-t border-slate-100 dark:border-slate-700/60 hover:bg-blue-50/50 dark:hover:bg-blue-950/30 ${
+                  selectedRows.has(ri) ? "bg-blue-50 dark:bg-blue-950/40" : ""
                 }`}
               >
                 {writable && (
@@ -186,7 +186,7 @@ export function DataGrid({
                       {isEditing ? (
                         <input
                           ref={inputRef}
-                          className="w-full border border-blue-400 rounded px-1 py-0.5 text-sm bg-white"
+                          className="w-full border border-blue-400 rounded px-1 py-0.5 text-sm bg-white dark:bg-slate-800"
                           value={editValue}
                           onClick={(e) => e.stopPropagation()}
                           onChange={(e) => setEditValue(e.target.value)}
@@ -207,7 +207,7 @@ export function DataGrid({
                 {writable && (
                   <td className="px-2 py-1.5 text-right whitespace-nowrap pr-3">
                     <button
-                      className="text-blue-600 hover:bg-blue-100 rounded px-1.5 py-0.5 text-xs mr-1"
+                      className="text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/40 rounded px-1.5 py-0.5 text-xs mr-1"
                       title="Edit row"
                       onClick={() => onEditRow(ri)}
                     >
@@ -228,7 +228,7 @@ export function DataGrid({
               <tr>
                 <td
                   colSpan={page.columns.length + (writable ? 2 : 0)}
-                  className="px-3 py-8 text-center text-slate-400"
+                  className="px-3 py-8 text-center text-slate-400 dark:text-slate-500"
                 >
                   No rows match the current view.
                 </td>
@@ -239,21 +239,21 @@ export function DataGrid({
       </div>
 
       {/* Pagination bar */}
-      <div className="flex items-center justify-between py-2 text-sm text-slate-600">
+      <div className="flex items-center justify-between py-2 text-sm text-slate-600 dark:text-slate-300">
         <div>
           {page.total} row{page.total === 1 ? "" : "s"}
           {selectedRows.size > 0 && ` · ${selectedRows.size} selected`}
         </div>
         <div className="flex items-center gap-2">
           <button
-            className="px-2.5 py-1 rounded-lg border border-slate-300 disabled:opacity-40 hover:bg-slate-50"
+            className="px-2.5 py-1 rounded-lg border border-slate-300 dark:border-slate-600 disabled:opacity-40 hover:bg-slate-50 dark:hover:bg-slate-700/60"
             disabled={page.page === 0}
             onClick={() => onPageChange(0)}
           >
             «
           </button>
           <button
-            className="px-2.5 py-1 rounded-lg border border-slate-300 disabled:opacity-40 hover:bg-slate-50"
+            className="px-2.5 py-1 rounded-lg border border-slate-300 dark:border-slate-600 disabled:opacity-40 hover:bg-slate-50 dark:hover:bg-slate-700/60"
             disabled={page.page === 0}
             onClick={() => onPageChange(page.page - 1)}
           >
@@ -263,14 +263,14 @@ export function DataGrid({
             Page {page.page + 1} / {totalPages}
           </span>
           <button
-            className="px-2.5 py-1 rounded-lg border border-slate-300 disabled:opacity-40 hover:bg-slate-50"
+            className="px-2.5 py-1 rounded-lg border border-slate-300 dark:border-slate-600 disabled:opacity-40 hover:bg-slate-50 dark:hover:bg-slate-700/60"
             disabled={page.page + 1 >= totalPages}
             onClick={() => onPageChange(page.page + 1)}
           >
             Next ›
           </button>
           <button
-            className="px-2.5 py-1 rounded-lg border border-slate-300 disabled:opacity-40 hover:bg-slate-50"
+            className="px-2.5 py-1 rounded-lg border border-slate-300 dark:border-slate-600 disabled:opacity-40 hover:bg-slate-50 dark:hover:bg-slate-700/60"
             disabled={page.page + 1 >= totalPages}
             onClick={() => onPageChange(totalPages - 1)}
           >

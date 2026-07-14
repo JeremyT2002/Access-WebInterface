@@ -21,6 +21,7 @@ import { StatsPanel } from "./components/StatsPanel";
 import { LockBanner } from "./components/LockBanner";
 import { ConfirmDialog } from "./components/ConfirmDialog";
 import { ToastProvider, useToasts } from "./components/Toasts";
+import { applyTheme, getInitialTheme, type Theme } from "./theme";
 
 const PAGE_SIZE = 50;
 
@@ -66,8 +67,17 @@ function AppInner() {
   const [detailIdx, setDetailIdx] = useState<number | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<number[] | null>(null);
   const [statsColumn, setStatsColumn] = useState<string | null>(null);
+  const [theme, setTheme] = useState<Theme>(getInitialTheme);
 
   const requestSeq = useRef(0);
+
+  const toggleTheme = useCallback(() => {
+    setTheme((prev) => {
+      const next: Theme = prev === "dark" ? "light" : "dark";
+      applyTheme(next);
+      return next;
+    });
+  }, []);
 
   // ---- Global search debounce -------------------------------------------
   useEffect(() => {
@@ -411,7 +421,7 @@ function AppInner() {
   // ---- Render -----------------------------------------------------------------
   if (connecting) {
     return (
-      <div className="h-full flex items-center justify-center text-slate-500">
+      <div className="h-full flex items-center justify-center text-slate-500 dark:text-slate-400">
         Connecting to database…
       </div>
     );
@@ -422,7 +432,7 @@ function AppInner() {
       <div className="h-full flex flex-col items-center justify-center gap-4 p-8">
         <div className="text-5xl">🗄️</div>
         <h1 className="text-2xl font-semibold">Access DB Browser</h1>
-        <p className="text-slate-500 text-sm max-w-md text-center">
+        <p className="text-slate-500 dark:text-slate-400 text-sm max-w-md text-center">
           Open a Microsoft Access database (.accdb / .mdb) to browse its tables and
           saved queries, filter and edit data, and export to CSV.
         </p>
@@ -459,6 +469,8 @@ function AppInner() {
           onOpenOther={pickAndOpen}
           onHome={goHome}
           onBackup={doBackup}
+          theme={theme}
+          onToggleTheme={toggleTheme}
         />
         <main className="flex-1 min-w-0 flex flex-col p-4">
           {!selected && (
@@ -475,7 +487,7 @@ function AppInner() {
             <>
               <div className="flex items-baseline gap-3 pb-2">
                 <h1 className="text-xl font-semibold truncate">{selected.name}</h1>
-                <span className="text-xs uppercase tracking-wide text-slate-400 font-semibold">
+                <span className="text-xs uppercase tracking-wide text-slate-400 dark:text-slate-500 font-semibold">
                   {selected.isQuery ? "Saved query (read-only)" : "Table"}
                 </span>
               </div>
@@ -539,7 +551,7 @@ function AppInner() {
                 />
               )}
               {!schema && !viewError && (
-                <div className="flex-1 flex items-center justify-center text-slate-400 text-sm">
+                <div className="flex-1 flex items-center justify-center text-slate-400 dark:text-slate-500 text-sm">
                   Loading schema…
                 </div>
               )}
