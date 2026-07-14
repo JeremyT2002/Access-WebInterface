@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:docs.rs)",
+      "PowerShell($machine = [System.Environment]::GetEnvironmentVariable\\(\"Path\",\"Machine\"\\); $user = [System.Environment]::GetEnvironmentVariable\\(\"Path\",\"User\"\\); $env:Path = \"$machine;$user\"; Set-Location src-tauri; cargo check 2>&1 | Out-File -Encoding utf8 \"$env:TEMP\\\\cargo_check.txt\"; Get-Content \"$env:TEMP\\\\cargo_check.txt\" | Select-String -Pattern \"^error\" -Context 0,12 | Select-Object -First 80)"
+    ]
+  }
+}
