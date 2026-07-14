@@ -1,0 +1,66 @@
+name: Release
+
+# Cut a release by pushing a version tag:
+#     git tag v1.0.1 && git push origin v1.0.1
+# or run this workflow manually (Actions -> Release -> Run workflow) and enter
+# a version like "v1.0.1" — the tag and GitHub Release are then created for you.
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version tag to create & release (e.g. v1.0.1)"
+        required: true
+
+# tauri-action needs to create the GitHub Release and upload assets.
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build & publish (Windows)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Rust cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      # Builds the frontend (via beforeBuildCommand) and the NSIS installer,
+      # then creates/updates the GitHub Release and uploads the setup .exe.
+      - name: Build and publish release
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.event.inputs.version || github.ref_name }}
+          releaseName: "Access DB Browser ${{ github.event.inputs.version || github.ref_name }}"
+          releaseBody: |
+            Windows installer for Access DB Browser.
+
+            **Requirements on the target machine**
+            - WebView2 Runtime (preinstalled on Windows 11 / most Windows 10; the
+              installer offers to download it if missing).
+            - Microsoft Access ODBC driver *Microsoft Access Driver (\*.mdb, \*.accdb)*,
+              64-bit — not bundled. If missing, install the Access Database Engine
+              2016 Redistributable (x64).
+
+            Download the `*-setup.exe` under **Assets** below.
+          releaseDraft: false
+          prerelease: false
