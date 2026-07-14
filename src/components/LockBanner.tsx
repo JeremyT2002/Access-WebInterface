@@ -10,6 +10,13 @@ export function LockBanner({ lock, busy, onRetry }: Props) {
   if (lock.connect_ok && !lock.laccdb_present) return null;
 
   const hard = !lock.connect_ok;
+
+  // De-duplicate and format the machine/user pairs from the .laccdb file.
+  const holders = lock.holders.filter((h) => h.machine !== "?" || h.user !== "?");
+  const holderText = holders
+    .map((h) => (h.user !== "?" ? `${h.user} (${h.machine})` : h.machine))
+    .join(", ");
+
   return (
     <div
       className={`${
@@ -19,17 +26,22 @@ export function LockBanner({ lock, busy, onRetry }: Props) {
       <span className="text-lg leading-none">⚠</span>
       <span className="flex-1">
         {hard
-          ? `Cannot connect to the database — it appears to be exclusively locked. ${
+          ? `Verbindung zur Datenbank nicht möglich — sie ist offenbar exklusiv gesperrt. ${
               lock.message ?? ""
             }`
-          : "This database is currently open in Microsoft Access. Please close it in Access to use the full functionality of this app (editing may fail or be blocked)."}
+          : "Diese Datenbank ist aktuell in Microsoft Access geöffnet. Bitte schließe sie in Access, um den vollen Funktionsumfang zu nutzen (Bearbeiten kann fehlschlagen oder blockiert sein)."}
+        {holderText && (
+          <span className="block mt-0.5 font-medium">
+            Geöffnet von: {holderText}
+          </span>
+        )}
       </span>
       <button
         onClick={onRetry}
         disabled={busy}
         className="shrink-0 bg-white/20 hover:bg-white/30 disabled:opacity-50 rounded-lg px-3 py-1.5 font-medium"
       >
-        {busy ? "Checking…" : "Retry / Reconnect"}
+        {busy ? "Prüfe…" : "Erneut verbinden"}
       </button>
     </div>
   );
