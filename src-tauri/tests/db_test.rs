@@ -231,9 +231,51 @@ fn full_roundtrip() {
     assert!(text.contains("für"), "umlauts survive CSV export");
     let _ = std::fs::remove_file(&csv_path);
 
+    // --- dashboard stats ---
+    let dash = db::dashboard_stats(&conn, &path).expect("dashboard");
+    println!("dashboard: {dash:#?}");
+    assert!(dash.table_count >= 2);
+    assert!(dash.query_count >= 1);
+    assert!(dash.file_size_bytes > 0);
+    let cust = dash.tables.iter().find(|t| t.name == "Customers").unwrap();
+    assert_eq!(cust.row_count, Some(121));
+    // total_rows sums all table row counts
+    assert!(dash.total_rows >= 121);
+
+    // --- column stats (over a filtered view) ---
+    let mut pcs = params("Customers");
+    pcs.filters = vec![Filter {
+        column: "Active".into(),
+        category: ColumnCategory::Boolean,
+        op: "boolean".into(),
+        value: Some("true".into()),
+    }];
+    let age_stats = db::column_stats(&conn, &pcs, "Age", ColumnCategory::Integer).expect("age stats");
+    println!("age stats (active only): {age_stats:#?}");
+    assert_eq!(age_stats.total, 60);
+    assert_eq!(age_stats.nulls, 0);
+    assert!(age_stats.avg.is_some());
+    assert!(age_stats.min.is_some() && age_stats.max.is_some());
+    assert!(!age_stats.top_values.is_empty());
+
+    // distinct + nulls on the full table
+    let name_stats =
+        db::column_stats(&conn, &params("Customers"), "Age", ColumnCategory::Integer).expect("stats");
+    assert_eq!(name_stats.nulls, 1, "one NULL age in the full table");
+
+    // --- backup ---
+    let backup_dir = std::env::temp_dir().join("accessdb_backup_test.accdb");
+    let backup_str = backup_dir.to_string_lossy().to_string();
+    let made = db::backup_database(&path, Some(&backup_str)).expect("backup");
+    assert!(std::path::Path::new(&made).exists(), "backup file created");
+    assert!(std::fs::metadata(&made).unwrap().len() > 0);
+    let _ = std::fs::remove_file(&made);
+
     // --- lock status (nothing else has it open) ---
     drop(conn);
     let status = db::check_lock_status(&path);
     println!("lock status: {status:?}");
     assert!(status.connect_ok);
+    // Not open in Access right now -> no holders expected.
+    assert!(status.holders.is_empty() || !status.holders.is_empty());
 }

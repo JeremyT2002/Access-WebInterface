@@ -200,3 +200,35 @@ pub fn check_lock_status(state: State<'_, AppState>) -> AppResult<LockStatus> {
     let path = current_path(&state)?;
     Ok(db::check_lock_status(&path))
 }
+
+// ---------------------------------------------------------------------------
+// Cockpit: dashboard, backup, column statistics
+// ---------------------------------------------------------------------------
+
+#[tauri::command]
+pub fn get_dashboard_stats(state: State<'_, AppState>) -> AppResult<DashboardStats> {
+    let path = current_path(&state)?;
+    let conn = db::connect(&path)?;
+    db::dashboard_stats(&conn, &path)
+}
+
+#[tauri::command]
+pub fn backup_database(
+    state: State<'_, AppState>,
+    dest_path: Option<String>,
+) -> AppResult<String> {
+    let path = current_path(&state)?;
+    db::backup_database(&path, dest_path.as_deref())
+}
+
+#[tauri::command]
+pub fn get_column_stats(
+    state: State<'_, AppState>,
+    params: QueryParams,
+    column: String,
+    category: ColumnCategory,
+) -> AppResult<ColumnStats> {
+    let path = current_path(&state)?;
+    let conn = db::connect(&path)?;
+    db::column_stats(&conn, &params, &column, category)
+}

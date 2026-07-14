@@ -21,6 +21,9 @@ pub fn run() {
             commands::delete_rows,
             commands::export_csv,
             commands::check_lock_status,
+            commands::get_dashboard_stats,
+            commands::backup_database,
+            commands::get_column_stats,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
